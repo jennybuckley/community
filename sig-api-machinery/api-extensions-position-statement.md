@@ -7,10 +7,10 @@ Status: RELEASED
 
 ## Background
 We have observed a lot of confusion in the community around the general topic
-of ThirdPartyResources (TPRs) and apiserver aggregation (AA). We want to
+of CustomResourceDefinitions (CRDs) and apiserver aggregation (AA). We want to
 document the current position of the API Machinery SIG.
 
-Extremely briefly, TPR is a mechanism for lightweight, easy extension of the
+Extremely briefly, CRD is a mechanism for lightweight, easy extension of the
 kubernetes API, which has collected a [significant userbase](https://gist.github.com/philips/a97a143546c87b86b870a82a753db14c).
 AA is a heavier-weight mechanism for accomplishing a similar task; it is
 targeted at allowing the Kubernetes project to move away from a monolithic
@@ -24,15 +24,15 @@ extension mechanism with multiple opt-in features for users to grow into?
 (Binary vs gradient)
 
 We think there is both room in this space and a necessity for both approaches.
-TPR is clearly useful to users. In its current state, TPR lacks some features
-and has some bugs which limit it. We believe TPR bugs should be fixed and some
+CRD is clearly useful to users. In its current state, CRD lacks some features
+and has some bugs which limit it. We believe CRD bugs should be fixed and some
 features should be added to it (as long as it maintains its ease-of-use, which
-we think is its primary feature). We think TPR’s competitive advantage is its
+we think is its primary feature). We think CRD’s competitive advantage is its
 low barrier-to-entry and ease of use.
 
-However, even in the limit where we have added all the features to TPR that
+However, even in the limit where we have added all the features to CED that
 make sense, there’s still a need for apiserver aggregation. Here are two use
-cases that TPR cannot address while maintaining its ease of use.
+cases that CRD cannot address while maintaining its ease of use.
 * Heapster / metrics API. The metrics API is going to be data assembled at read
 time, which is extremely high churn and should not be stored in an etcd
 instance. Heapster needs to use custom storage.
@@ -57,39 +57,39 @@ instance. Heapster needs to use custom storage.
   bad for the ecosystem as a whole. With ecosystem unification in mind, it
   would be infeasible to ask any consumer with both many users and an
   extensive codebase (such as OpenShift) to rewrite their stack in terms of
-  TPRs and webhooks. We have to give such users a path to straight consumption
+  CRDs and webhooks. We have to give such users a path to straight consumption
   as opposed to the current fork-and-modify approach, which has been the only
   feasible one for far too long.
 
-This is not to say that TPR should stay in its current form. The API Machinery
-SIG is committed to finishing TPR, making it usable, and maintaining it (but we
+This is not to say that CRD should stay in its current form. The API Machinery
+SIG is committed to finishing CRD, making it usable, and maintaining it (but we
 need volunteers to step up, or it’s going to take a long time).
 
 The big table in [Eric’s comparison doc](https://docs.google.com/document/d/1y16jKL2hMjQO0trYBJJSczPAWj8vAgNFrdTZeCincmI/edit#heading=h.xugwibxye5f0)
-is a good place to learn the current and possible future feature sets of TPRs
-and AA. The fact that TPR has been languishing is due to lack of an owner and
+is a good place to learn the current and possible future feature sets of CRD
+and AA. The fact that CRD has been languishing is due to lack of an owner and
 lack of people willing to work on it, not lack of belief that it ought to be
 fixed and perfected. Eric and Anirudh have agreed to take on this role.
 
-### Q: Should there be a single API object that programs either TPR or AA as appropriate, or should each of these have their own registration object?
+### Q: Should there be a single API object that programs either CRD or AA as appropriate, or should each of these have their own registration object?
 We think that the configuration of these two objects is distinct enough that
 two API resources are appropriate.
 
 We do need to take care to provide a good user experience, as the API groups
-users enter in both AA and TPR come out of the same global namespace. E.g., a
-user should not have to make both a TPR registration and an AA registration to
-start up a TPR--this would break current users of TPRs.
+users enter in both AA and CRD come out of the same global namespace. E.g., a
+user should not have to make both a CRD registration and an AA registration to
+start up a CRD--this would break current users of CRDs.
 
-### Q: Should TPRs be fixed up and extended in-place, or should a replacement be built in a separate TPR apiserver?
-TPR is implemented currently with a variety of special cases sprinkled
+### Q: Should CRDs be fixed up and extended in-place, or should a replacement be built in a separate CRD apiserver?
+CRD is implemented currently with a variety of special cases sprinkled
 throughout kube-apiserver code. It would greatly simplify kube-apiserver code
-and the TPR implementation if this were separated, and TPR constructed as its
+and the CRD implementation if this were separated, and CRD constructed as its
 own HTTP server (but still run from kube-apiserver; see bottom Q). However, we
-will not block safe, targeted TPR fixes on completion of this split.
+will not block safe, targeted CRD fixes on completion of this split.
 
-### Q: Should TPR maintain compatibility, or should we break compatibility to fix and extend it?
-There are two dozen open-source projects that use TPR, and we also know of
-private users of TPR, and at least some people consider it to be beta. However,
+### Q: Should CRD maintain compatibility, or should we break compatibility to fix and extend it?
+There are two dozen open-source projects that use CRD, and we also know of
+private users of CRD, and at least some people consider it to be beta. However,
 we may have to implement fixes in a way that requires breaking backward
 compatibility. If we do that, we will at a minimum provide migration
 instructions and go through a one-release deprecation cycle to give users time
